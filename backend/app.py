@@ -18,6 +18,7 @@ def load_user(user_id) -> User:
     return user
 
 
+# TODO: Check an invite code to allow prospective employers to create an account 
 @app.route("/api/create_user", methods=["POST"])
 def create_user():
     username = request.json["username"]
@@ -38,6 +39,31 @@ def create_user():
     return jsonify({
         "message": "User successfully created!"
     }), 200
+ 
+   
+@app.route("/api/update_password", methods=["POST"])
+def update_password():
+    uid = int(session.get('_user_id'))
+    if not uid:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
+        
+    new_password = request.json["password"]
+    confirmed_password = request.json["confirmed_password"]
+
+    if new_password != confirmed_password:
+        return jsonify({"message": "Confirmed password must match!"}), 401
+    
+    password_hash = generate_password_hash(new_password)
+    db.update_password(uid, password_hash)
+    
+    return jsonify({
+        "message": "Password successfully updated!"
+    }), 200
+    
+    
+   
     
 
 
@@ -92,35 +118,59 @@ def check_auth(): # For the front end to check user auth status
         }), 200
 
 
+
 # Get all posts
 @app.route("/api/posts", methods=["GET"])
 def get_posts():
-    
     query = db.get_all_posts_publicly()
     res = [row.to_json() for row in query]
     return jsonify(res), 200
     
+
+@app.route("/api/user_posts", methods=["GET"])
+def get_user_posts():
+    uid = session.get('_user_id')
+    if not uid:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
+        
+    user = db.get_user_by_id(int(uid))
+    j_user = user.to_json()
+    query_private = db.get_posts_by_author(j_user.get('username'), True)  
+    query_public = db.get_posts_by_author(j_user.get('username'), False)  
     
+    private = [row.to_json() for row in query_private]
+    public = [row.to_json() for row in query_public]
+    res = private + public
+    return jsonify(res), 200
     
-# TODO: Implement access controls - for now we can just use an anonymous user
+
+
 # Create post
 @app.route("/api/create_post", methods=["POST"])
 def create_post():
     
-    # uid = session.get('_user_id')
-    # if not uid:
-    #     return jsonify({
-    #         "message": "Unauthorized"
-    #     }), 401
+    uid = session.get('_user_id')
+    if not uid:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
+    user = db.get_user_by_id(int(uid))
+    j_user = user.to_json()
     
-    author = "anonymous"
+    author = j_user.get('username')
     title = request.json.get('title')
     content = request.json.get('content')
     private = request.json.get('private')
+    i_private = None
+    if private:
+        i_private = 1
+    else:
+        i_private = 0
     
-    res = db.create_post(author, title, content, private)
+    res = db.create_post(author, title, content, i_private)
     j_post = res.to_json()
-    print(j_post)
     return jsonify({
         "message": "Post Created!",
         "data": j_post
@@ -130,23 +180,35 @@ def create_post():
 # Update post
 @app.route("/api/update_post", methods=["POST"])
 def update_post():
-    
-    # uid = session.get('_user_id')
-    # if not uid:
-    #     return jsonify({
-    #         "message": "Unauthorized"
-    #     }), 401
-    
     post_id = request.json.get('post_id')
-    # TODO: Secure other user posts
-    # - Get post and get username
-    # - Get user by ID and ensure username matches the post.author field, else raise a 401
-    
     title = request.json.get('title')
     content = request.json.get('content')
     private = request.json.get('private')
+
+    uid = session.get('_user_id')
+    if not uid:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
+            
+    user = db.get_user_by_id(int(uid)).to_json()
+    username = user.get('username')
     
-    res = db.update_post(post_id, title, content, private)
+    post = db.get_post_by_id(post_id).to_json()
+    author = post.get('author')
+    
+    if not current_user.is_authenticated or author != username:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
+        
+    i_private = None
+    if private:
+        i_private = 1
+    else:
+        i_private = 0
+    
+    res = db.update_post(post_id, title, content, i_private)
     j_post = res.to_json()
     
     return jsonify({
@@ -159,14 +221,23 @@ def update_post():
 @app.route("/api/delete_post", methods=["POST"])
 def delete_post():
     
-    # uid = session.get('_user_id')
-    # if not uid:
-    #     return jsonify({
-    #         "message": "Unauthorized"
-    #     }), 401
+    uid = session.get('_user_id')
+    if not uid:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
+    
+    user = db.get_user_by_id(int(uid)).to_json()
+    username = user.get('username')
     
     post_id = request.json.get('post_id')
-    # Secure posts just like updating posts
+    post = db.get_post_by_id(post_id).to_json()
+    author = post.get('author')
+    
+    if not current_user.is_authenticated or author != username:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 401
     
     db.delete_post(post_id)
     return jsonify({

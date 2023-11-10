@@ -31,7 +31,7 @@ export function Login() {
 
         <div>
             <div >
-                <h2 class="flex y-screen items-center justify-center font-semibold">Login</h2>
+                <h2 class="flex y-screen items-center justify-center font-semibold p-2">Login</h2>
             </div>
             <div class="flex h-screen items-center justify-center">
                 <div>
@@ -61,7 +61,7 @@ export function Login() {
                     <div>
                         {
                             error ? (
-                                <div class="text-red-600">{error}</div>  
+                                <div class="text-red-600 justify-center flex">{error}</div>  
                             ): (
                                 <div></div>
                             )

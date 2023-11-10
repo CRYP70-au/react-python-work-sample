@@ -1,43 +1,30 @@
-import axios from "axios";
-import { useState } from "react"
+import { useState } from "react";
 
 
-export function Register() {
-    const [username, setUsername] = useState('');
+
+
+export function Account() {
+
+
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     const [error, setError] = useState('');
+    
 
-    const submitRegistration = () => {
-        const params = JSON.stringify({username: username, password: password, confirm_password: confirmPassword})
-        axios.post('/api/create_user', params, {
-            headers: {
-            'Content-Type': 'application/json'
-          }
-        }).then(response => {
-            window.location = "/login" // Force a redirect on registration
-        }).catch(err => {
-            const errorMessage = err.response.data.message
-            setError(errorMessage);
-
-        })
+    const submitPasswordChange = () => {
+        
     }
 
     return (
+
         <div>
             <div >
-                <h2 class="flex y-screen items-center justify-center font-semibold p-2">Register</h2>
+                <h2 class="flex y-screen items-center justify-center font-semibold p-2">Account</h2>
             </div>
             <div class="flex h-screen items-center justify-center">
                 <div>
                     <div>
-                        <div class="py-4">
-                            <label for="usename"><b>Username</b></label>
-                        </div>
-                        <div class="bg-gray-50 border border-gray-300">
-                            <input type="text" placeholder="Enter Username" required onChange={(e) => setUsername(e.target.value)}/>
-                        </div>
 
                         <div class="py-4">
                             <label for="password"><b>Password</b></label>
@@ -54,10 +41,11 @@ export function Register() {
                     </div>
 
                     <div class="flex justify-center py-4">
-                        <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow" onClick={() => submitRegistration()} type="submit">
-                            Register
+                        <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow" onClick={() => submitPasswordChange()} type="submit">
+                            Submit
                         </button>
                     </div>
+
 
                     <div>
                         {
@@ -67,7 +55,8 @@ export function Register() {
                                 <div></div>
                             )
                         }
-                    </div>     
+                    </div>
+                    
                 </div>
 
         </div>

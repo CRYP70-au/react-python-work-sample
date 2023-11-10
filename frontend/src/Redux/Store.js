@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./ducks/Auth"
+import postsReducer from "./ducks/ManipulatePosts"
 
 export default configureStore({
     reducer: {
-        auth: authReducer // Example reducer
+        posts: postsReducer // Example reducer
     }
 })

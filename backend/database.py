@@ -5,12 +5,14 @@ from dataclasses import dataclass
 from flask_login import UserMixin
 
 
-
+# TODO: Create admin field
+# TODO: Create Invite codes
 @dataclass
 class User(UserMixin):
     id: int
     username: str
     password: str
+    is_admin: bool
     
     def to_json(self):        
         return {"username": self.username}
@@ -63,7 +65,7 @@ class Database:
         """
         cur = self.con.cursor()
 
-        sql = "CREATE TABLE Users(id INTEGER PRIMARY KEY AUTOINCREMENT, username, password);" 
+        sql = "CREATE TABLE Users(id INTEGER PRIMARY KEY AUTOINCREMENT, username, password, is_admin BOOL);" 
         cur.execute(sql)
         
         sql = "CREATE TABLE Posts(id INTEGER PRIMARY KEY AUTOINCREMENT, author, post_timestamp,\
@@ -90,7 +92,8 @@ class Database:
         id = row[0]
         username = row[1]
         password = row[2]
-        return User(id, username, password)
+        is_admin = row[3]
+        return User(id, username, password, is_admin)
     
     
     # ===== USER ===== 
@@ -129,11 +132,19 @@ class Database:
         return res
     
     
-    def create_user(self, username: str, password: str) -> None:
-        sql = "INSERT INTO Users(username, password) VALUES(?, ?);"
+    def create_user(self, username: str, password: str, is_admin: bool = False) -> None:
+        sql = "INSERT INTO Users(username, password, is_admin) VALUES(?, ?, ?);"
         cur = self.con.cursor()
-        cur.execute(sql, (username, password))
+        cur.execute(sql, (username, password, is_admin, ))
         self.con.commit()
+        
+        
+    def update_password(self, user_id: int, new_password: str) -> None:
+        sql = "UPDATE User SET password=? WHERE id=?"
+        cur = self.con.cursor()
+        cur.execute(sql, (new_password, user_id,))
+        self.con.commit()
+    
     
     
     # ===== Post =====
@@ -149,10 +160,10 @@ class Database:
     
     
     def get_posts_by_author(self, author: str, private: bool) -> list[Post]:
-        sql = "SELECT * FROM Posts WHERE author=? AND private=?"
+        sql = "SELECT * FROM Posts WHERE author=? AND private=? ORDER BY post_timestamp DESC"
         cur = self.con.cursor()
         cur.execute(sql, (author, private))
-        rows = cur.fetchmany()
+        rows = cur.fetchall()
         res = []
         for row in rows:
             post = self._row_to_post(row)

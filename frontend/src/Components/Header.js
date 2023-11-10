@@ -9,17 +9,18 @@ import { useHistory } from 'react-router-dom'
 import axios from "axios";
 
 
-
 export function Header() {
     const [openNav, setOpenNav] = useState(false);
     const history = useHistory();
     
     const [username, setUsername] = useState([]);
+    const [isAdmin, setIsAdmin] = useState([]);
     
 
   const checkLoggedIn = () => {
     axios.get(`/api/check_auth`).then(response => {
         setUsername(response.data.data.username)
+        setIsAdmin(response.data.data.isAdmin)
     })
     .catch(err => {
       console.log(err)
@@ -29,10 +30,12 @@ export function Header() {
   const performLogout = () => {
     axios.post(`/api/logout`).then(response => {
         setUsername("")
+        window.location = "/"
     })
     .catch(err => {
       console.log(err)
     })
+
   }
 
   useEffect(() => {
@@ -43,6 +46,79 @@ export function Header() {
         );
     }, []);
  
+  const userInfo = (
+    <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
+      {
+        isAdmin ? (
+          <Typography
+            as="li"
+            variant="small"
+            color="blue-gray"
+            className="flex items-center gap-x-2 p-1 font-medium"
+          > 
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <a href="#" className="flex items-center">  {/* list invite codes, delete invite code, add invite code */}
+              Admin
+            </a>
+          </Typography>
+        ) : (
+          <div></div>
+        )
+      }
+      
+      <Typography
+        as="li"
+        variant="small"
+        color="blue-gray"
+        className="flex items-center gap-x-2 p-1 font-medium"
+      > 
+        Welcome {username}! 
+      </Typography>
+      <Typography
+        as="li"
+        variant="small"
+        color="blue-gray"
+        className="flex items-center gap-x-2 p-1 font-medium"
+      >
+        <Typography
+          as="li"
+          variant="small"
+          color="blue-gray"
+          className="flex items-center gap-x-2 p-1 font-medium"
+        > 
+          <svg
+            width="16"
+            height="17"
+            viewBox="0 0 16 17"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M16 8.5C16 10.6217 15.1571 12.6566 13.6569 14.1569C12.1566 15.6571 10.1217 16.5 8 16.5C5.87827 16.5 3.84344 15.6571 2.34315 14.1569C0.842855 12.6566 0 10.6217 0 8.5C0 6.37827 0.842855 4.34344 2.34315 2.84315C3.84344 1.34285 5.87827 0.5 8 0.5C10.1217 0.5 12.1566 1.34285 13.6569 2.84315C15.1571 4.34344 16 6.37827 16 8.5ZM10 5.5C10 6.03043 9.78929 6.53914 9.41421 6.91421C9.03914 7.28929 8.53043 7.5 8 7.5C7.46957 7.5 6.96086 7.28929 6.58579 6.91421C6.21071 6.53914 6 6.03043 6 5.5C6 4.96957 6.21071 4.46086 6.58579 4.08579C6.96086 3.71071 7.46957 3.5 8 3.5C8.53043 3.5 9.03914 3.71071 9.41421 4.08579C9.78929 4.46086 10 4.96957 10 5.5ZM8 9.5C7.0426 9.49981 6.10528 9.77449 5.29942 10.2914C4.49356 10.8083 3.85304 11.5457 3.454 12.416C4.01668 13.0706 4.71427 13.5958 5.49894 13.9555C6.28362 14.3152 7.13681 14.5009 8 14.5C8.86319 14.5009 9.71638 14.3152 10.5011 13.9555C11.2857 13.5958 11.9833 13.0706 12.546 12.416C12.147 11.5457 11.5064 10.8083 10.7006 10.2914C9.89472 9.77449 8.9574 9.49981 8 9.5Z"
+              fill="#90A4AE"
+            />
+          </svg>
+          <a href="/me" className="flex items-center">
+            Account
+          </a>
+        </Typography>
+        <Button
+            variant="gradient"
+            size="sm"
+            className="hidden lg:inline-block"
+            onClick={() => performLogout()}
+        >
+        <span>Logout</span>
+        </Button>
+      </Typography>
+    </ul>
+  );
+
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
@@ -64,8 +140,8 @@ export function Header() {
           />
         </svg>
  
-        <a href="#" className="flex items-center">
-          Pages
+        <a href="/create-post" className="flex items-center">
+          Create Post
         </a>
       </Typography>
       <Typography
@@ -86,8 +162,8 @@ export function Header() {
             fill="#90A4AE"
           />
         </svg>
-        <a href="#" className="flex items-center">
-          Blocks
+        <a href="/my-posts" className="flex items-center">
+          My Posts
         </a>
       </Typography>
       <Typography
@@ -110,32 +186,8 @@ export function Header() {
             fill="#90A4AE"
           />
         </svg>
-        <a href="#" className="flex items-center">
-          Docs
-        </a>
-      </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="flex items-center gap-x-2 p-1 font-medium"
-      >
-        <svg
-          width="16"
-          height="17"
-          viewBox="0 0 16 17"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M16 8.5C16 10.6217 15.1571 12.6566 13.6569 14.1569C12.1566 15.6571 10.1217 16.5 8 16.5C5.87827 16.5 3.84344 15.6571 2.34315 14.1569C0.842855 12.6566 0 10.6217 0 8.5C0 6.37827 0.842855 4.34344 2.34315 2.84315C3.84344 1.34285 5.87827 0.5 8 0.5C10.1217 0.5 12.1566 1.34285 13.6569 2.84315C15.1571 4.34344 16 6.37827 16 8.5ZM10 5.5C10 6.03043 9.78929 6.53914 9.41421 6.91421C9.03914 7.28929 8.53043 7.5 8 7.5C7.46957 7.5 6.96086 7.28929 6.58579 6.91421C6.21071 6.53914 6 6.03043 6 5.5C6 4.96957 6.21071 4.46086 6.58579 4.08579C6.96086 3.71071 7.46957 3.5 8 3.5C8.53043 3.5 9.03914 3.71071 9.41421 4.08579C9.78929 4.46086 10 4.96957 10 5.5ZM8 9.5C7.0426 9.49981 6.10528 9.77449 5.29942 10.2914C4.49356 10.8083 3.85304 11.5457 3.454 12.416C4.01668 13.0706 4.71427 13.5958 5.49894 13.9555C6.28362 14.3152 7.13681 14.5009 8 14.5C8.86319 14.5009 9.71638 14.3152 10.5011 13.9555C11.2857 13.5958 11.9833 13.0706 12.546 12.416C12.147 11.5457 11.5064 10.8083 10.7006 10.2914C9.89472 9.77449 8.9574 9.49981 8 9.5Z"
-            fill="#90A4AE"
-          />
-        </svg>
-        <a href="#" className="flex items-center">
-          Account
+        <a href="https://github.com/CRYP70-au/react-python-work-sample/tree/main" className="flex items-center">
+          Github Link
         </a>
       </Typography>
     </ul>
@@ -149,7 +201,7 @@ export function Header() {
           <Typography
             as="a"
             className="mr-4 cursor-pointer py-1.5 font-medium"
-            onClick={() => history.push("/")}
+            href="/"
           >
             Awesome Blogging
           </Typography>
@@ -158,28 +210,18 @@ export function Header() {
           <div class="text-sm italic">(A React/Python work sample)</div>
         </div>
         </div>
-        <div className="hidden lg:block">{navList}</div>
+
+        {/* Only allow authenticated users to Create / Update / Delete posts */}
+        {username != "" ? (
+          <div className="hidden lg:block">{navList}</div>
+        ) : (
+          <div></div>
+        )}
+
         <div className="flex items-center gap-x-1">
         
         {username != "" ? (
-          <div>
-              <div>
-                  <Typography
-                      as="a"
-                      className="mr-4 cursor-pointer py-1.5 font-medium"
-                  >
-                      Welcome {username}!
-                  </Typography>
-                  <Button
-                      variant="gradient"
-                      size="sm"
-                      className="hidden lg:inline-block"
-                      onClick={() => performLogout()}
-                  >
-                  <span>Logout</span>
-                  </Button>
-              </div>
-            </div>
+          userInfo
         ) : (
         <div>
             <Button variant="text" size="sm" className="hidden lg:inline-block" onClick={() => history.push('/login')}>
@@ -195,8 +237,6 @@ export function Header() {
             </Button>
         </div>
         )}
-
-
 
         </div>
         <IconButton

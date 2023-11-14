@@ -57,9 +57,9 @@ export function Posts(props) {
       <div >
         {
           isInProfile ? (
-            <h2 class="flex y-screen items-center justify-center font-semibold p-2">Your Posts</h2>
+            <h2 class="flex y-screen items-center justify-center font-semibold p-2  text-2xl">Your Posts</h2>
           ) : (
-            <h2 class="flex y-screen items-center justify-center font-semibold p-2">Newsfeed</h2>
+            <h2 class="flex y-screen items-center justify-center font-semibold p-2  text-2xl">Newsfeed</h2>
           )
         }
       </div>

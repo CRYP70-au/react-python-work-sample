@@ -29,7 +29,7 @@ export function CreatePost() {
 
         <div>
             <div >
-                <h2 class="flex y-screen items-center justify-center font-semibold p-2">Create Post</h2>
+                <h2 class="flex y-screen items-center justify-center font-semibold p-2 text-2xl">Create Post</h2>
             </div>
             <div class="flex h-screen items-center justify-center">
                 <div>

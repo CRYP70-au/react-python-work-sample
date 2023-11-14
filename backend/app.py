@@ -48,12 +48,21 @@ def update_password():
         return jsonify({
             "message": "Unauthorized"
         }), 401
-        
+    
+    old_password = request.json["old_password"]
     new_password = request.json["password"]
     confirmed_password = request.json["confirmed_password"]
-
+    
     if new_password != confirmed_password:
         return jsonify({"message": "Confirmed password must match!"}), 401
+    
+    user = db.get_user_by_id(int(uid))
+    old_pass_hash = user.password
+    print(old_pass_hash)
+    if not check_password_hash(old_pass_hash, old_password):
+        return jsonify({
+            "message": "Old password is incorrect!"
+        }), 401
     
     password_hash = generate_password_hash(new_password)
     db.update_password(uid, password_hash)
@@ -75,7 +84,6 @@ def login():
         password = request.json.get('password')
         
         user_query = db.get_user_by_username(username)
-        print(user_query)
         if not user_query:
             return jsonify({
                 "message": "Incorrect username or password!"
@@ -115,7 +123,7 @@ def check_auth(): # For the front end to check user auth status
     else:
         return jsonify({
             "message": "User unauthenticated",
-        }), 200
+        }), 401
 
 
 

@@ -27,7 +27,7 @@ export function Register() {
     return (
         <div>
             <div >
-                <h2 class="flex y-screen items-center justify-center font-semibold p-2">Register</h2>
+                <h2 class="flex y-screen items-center justify-center font-semibold p-2 text-2xl">Register</h2>
             </div>
             <div class="flex h-screen items-center justify-center">
                 <div>

@@ -140,7 +140,7 @@ class Database:
         
         
     def update_password(self, user_id: int, new_password: str) -> None:
-        sql = "UPDATE User SET password=? WHERE id=?"
+        sql = "UPDATE Users SET password=? WHERE id=?"
         cur = self.con.cursor()
         cur.execute(sql, (new_password, user_id,))
         self.con.commit()
